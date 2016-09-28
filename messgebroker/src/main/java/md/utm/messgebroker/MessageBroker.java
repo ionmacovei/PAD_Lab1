@@ -27,7 +27,7 @@ public class MessageBroker extends Thread {
 
 	public MessageBroker(int port) throws IOException {
 		serverSocket = new ServerSocket(port);
-		serverSocket.setSoTimeout(15000);
+
 		queue = new LinkedList<Document>();
 	}
 
@@ -38,24 +38,22 @@ public class MessageBroker extends Thread {
 				Socket _clientSocket = serverSocket.accept();
 				DataInputStream in = new DataInputStream(_clientSocket.getInputStream());
 				Document doc = CreatorXML.loadXML(in.readUTF().toString());
-				
-				if( checkMessage(doc).equals("send")){
-					
+
+				if (checkMessage(doc).equals("send")) {
+
 					queue.add(doc);
-				}
-				else if (checkMessage(doc).equals("read")) {
-					Document document= queue.poll();
+				} else if (checkMessage(doc).equals("read")) {
 					DataOutputStream out = new DataOutputStream(_clientSocket.getOutputStream());
-					out.writeUTF(DocumentToString(document));
-					
+
+					if (queue.size() != 0) {
+						Document document = queue.poll();
+						out.writeUTF(documentToString(document));
+					} else {
+						out.writeUTF(documentToString(
+								CreatorXML.loadXML(CreatorXML.getXmlMsgBrok().getBuffer().toString())));
+					}
 				}
-				 
-				
-				 
-             
-				//System.out.println(in.readUTF().to);
-				//DataOutputStream out = new DataOutputStream(_clientSocket.getOutputStream());
-				
+
 				_clientSocket.close();
 
 			} catch (SocketTimeoutException s) {
@@ -67,32 +65,33 @@ public class MessageBroker extends Thread {
 			}
 		}
 	}
-    public static String checkMessage( Document doc){
-    	if (doc!=null){
- 	   Element element = doc.getDocumentElement();
-        NodeList nodes = element.getChildNodes();
-       String s= nodes.item(1).getTextContent().toString();
-		return s;
-    	}
-    	return null;
-	}
-    
-    public static void ElementToStream(Element element, OutputStream out) {
-        try {
-          DOMSource source = new DOMSource(element);
-          StreamResult result = new StreamResult(out);
-          TransformerFactory transFactory = TransformerFactory.newInstance();
-          Transformer transformer = transFactory.newTransformer();
-          transformer.transform(source, result);
-        } catch (Exception ex) {
-        }
-      }
 
-      public static String DocumentToString(Document doc) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ElementToStream(doc.getDocumentElement(), baos);
-        return new String(baos.toByteArray());
-      }
+	public static String checkMessage(Document doc) {
+		if (doc != null) {
+			Element element = doc.getDocumentElement();
+			NodeList nodes = element.getChildNodes();
+			String s = nodes.item(1).getTextContent().toString();
+			return s;
+		}
+		return null;
+	}
+
+	public static void elementToStream(Element element, OutputStream out) {
+		try {
+			DOMSource source = new DOMSource(element);
+			StreamResult result = new StreamResult(out);
+			TransformerFactory transFactory = TransformerFactory.newInstance();
+			Transformer transformer = transFactory.newTransformer();
+			transformer.transform(source, result);
+		} catch (Exception ex) {
+		}
+	}
+
+	public static String documentToString(Document doc) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		elementToStream(doc.getDocumentElement(), baos);
+		return new String(baos.toByteArray());
+	}
 
 	public static void main(String[] args) {
 		int port = 9001;
