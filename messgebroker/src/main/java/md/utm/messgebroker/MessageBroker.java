@@ -3,6 +3,8 @@ package md.utm.messgebroker;
 import java.net.*;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import md.utm.messgebroker.CreatorXML;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -21,49 +23,41 @@ import org.xml.sax.SAXException;
 
 import java.io.*;
 
-public class MessageBroker extends Thread {
+public class MessageBroker implements Runnable {
 	private ServerSocket serverSocket;
+	protected int serverPort = 9001;
 	private Queue<Document> queue;
+	protected boolean isStopped = false;
+	protected Thread runningThread = null;
 
 	public MessageBroker(int port) throws IOException {
-		serverSocket = new ServerSocket(port);
 
-		queue = new LinkedList<Document>();
+		this.serverPort = port;
+
+		queue = new ConcurrentLinkedQueue<Document>();
 	}
 
 	public void run() {
-		while (true) {
-			try {
-				System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
-				Socket _clientSocket = serverSocket.accept();
-				DataInputStream in = new DataInputStream(_clientSocket.getInputStream());
-				Document doc = CreatorXML.loadXML(in.readUTF().toString());
-
-				if (checkMessage(doc).equals("send")) {
-
-					queue.add(doc);
-				} else if (checkMessage(doc).equals("read")) {
-					DataOutputStream out = new DataOutputStream(_clientSocket.getOutputStream());
-
-					if (queue.size() != 0) {
-						Document document = queue.poll();
-						out.writeUTF(documentToString(document));
-					} else {
-						out.writeUTF(documentToString(
-								CreatorXML.loadXML(CreatorXML.getXmlMsgBrok().getBuffer().toString())));
-					}
-				}
-
-				_clientSocket.close();
-
-			} catch (SocketTimeoutException s) {
-				System.out.println("Socket timed out!");
-				break;
-			} catch (IOException e) {
-				e.printStackTrace();
-				break;
-			}
+		synchronized (this) {
+			this.runningThread = Thread.currentThread();
 		}
+		openServerSocket();
+		while (!isStopped()) {
+
+			System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
+			Socket clientSocket = null;
+			try {
+				clientSocket = this.serverSocket.accept();
+			} catch (IOException e) {
+				if (isStopped()) {
+					System.out.println("Server Stopped.");
+					return;
+				}
+				throw new RuntimeException("Error accepting client connection", e);
+			}
+			new Thread(new WorkerRunnable(clientSocket, queue)).start();
+		}
+
 	}
 
 	public static String checkMessage(Document doc) {
@@ -96,10 +90,32 @@ public class MessageBroker extends Thread {
 	public static void main(String[] args) {
 		int port = 9001;
 		try {
-			Thread t = new MessageBroker(port);
-			t.start();
+			MessageBroker server = new MessageBroker(port);
+			new Thread(server).start();
+
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void openServerSocket() {
+		try {
+			this.serverSocket = new ServerSocket(this.serverPort);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot open port (9001", e);
+		}
+	}
+
+	private synchronized boolean isStopped() {
+		return this.isStopped;
+	}
+
+	public synchronized void stop() {
+		this.isStopped = true;
+		try {
+			this.serverSocket.close();
+		} catch (IOException e) {
+			throw new RuntimeException("Error closing server", e);
 		}
 	}
 }
