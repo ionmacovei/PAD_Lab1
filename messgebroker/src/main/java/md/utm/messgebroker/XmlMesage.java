@@ -14,6 +14,9 @@ public class XmlMesage {
     private String command;
     private String message;
 
+    public XmlMesage() {
+    }
+
     public XmlMesage(String type, String command, String message) {
         this.type = type;
         this.command = command;
@@ -28,6 +31,7 @@ public class XmlMesage {
     public String getType() {
         return type;
     }
+
     @XmlElement
     public void setType(String type) {
         this.type = type;
@@ -36,6 +40,7 @@ public class XmlMesage {
     public String getCommand() {
         return command;
     }
+
     @XmlElement
     public void setCommand(String command) {
         this.command = command;
@@ -44,6 +49,7 @@ public class XmlMesage {
     public String getMessage() {
         return message;
     }
+
     @XmlElement
     public void setMessage(String message) {
         this.message = message;

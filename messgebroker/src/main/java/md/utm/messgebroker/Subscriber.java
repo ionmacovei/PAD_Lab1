@@ -17,18 +17,17 @@ public class Subscriber {
 		String serverName = "localhost";
 		int port = 9001;
 		try {
-			System.out.println("Connecting to " + serverName + " on port " + port);
 			Socket client = new Socket(serverName, port);
 
 			OutputStream outToServer = client.getOutputStream();
 			DataOutputStream out = new DataOutputStream(outToServer);
 
-			out.writeUTF(CreatorXML.getXmlForSubscriber().getBuffer().toString());
+			out.writeUTF(XmlUtil.objectToXmlString("read"));
 			InputStream inFromServer = client.getInputStream();
 			DataInputStream in = new DataInputStream(inFromServer);
-			Document doc = CreatorXML.loadXML(in.readUTF().toString());
+			XmlMesage ms = XmlUtil.deserealizeMessageObbject(in.readUTF().toString());
 
-			System.out.println("Server says " + checkMessage(doc));
+			System.out.println("Message from server " + ms.getMessage());
 			client.close();
 		} catch (IOException e) {
 			e.printStackTrace();

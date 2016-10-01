@@ -1,6 +1,5 @@
 package md.utm.messgebroker;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,7 @@ public class Sender {
 			OutputStream outToServer = client.getOutputStream();
 			DataOutputStream out = new DataOutputStream(outToServer);
 
-			out.writeUTF(CreatorXML.getXmlForPublisher().getBuffer().toString());
+			out.writeUTF(XmlUtil.objectToXmlString("send"));
 			InputStream inFromServer = client.getInputStream();
 
 			client.close();
