@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="messgebroker:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/messgebroker_jar</output-path>
+    <root id="archive" name="messgebroker.jar">
+      <element id="module-output" name="messgebroker" />
+    </root>
+  </artifact>
+</component>
