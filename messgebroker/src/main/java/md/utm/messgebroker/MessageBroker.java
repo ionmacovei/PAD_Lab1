@@ -23,7 +23,7 @@ public class MessageBroker implements Runnable {
         queue = new ConcurrentLinkedQueue<XmlMesage>();
         if (fileExist()) {
             Queue q = XmlUtil.getMesagesFromFile(f);
-            if (q.equals(null)) {
+            if (q!=null) {
                 queue.addAll(q);
             }
 

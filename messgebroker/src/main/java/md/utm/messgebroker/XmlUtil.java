@@ -88,7 +88,8 @@ public class XmlUtil {
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             messages = (XmlMessages) jaxbUnmarshaller.unmarshal(f);
             msgs = new LinkedList<>();
-            if(messages.equals(null))
+
+            if(messages.getXmlMessages()!=null)
             msgs.addAll(messages.getXmlMessages());
         } catch (JAXBException e) {
             e.printStackTrace();
