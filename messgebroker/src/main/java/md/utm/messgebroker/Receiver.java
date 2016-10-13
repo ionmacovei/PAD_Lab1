@@ -34,13 +34,4 @@ public class Receiver {
 		}
 	}
 
-	public static String checkMessage(Document doc) {
-		if (doc != null) {
-			Element element = doc.getDocumentElement();
-			NodeList nodes = element.getChildNodes();
-			String s = nodes.item(2).getTextContent().toString();
-			return s;
-		}
-		return null;
-	}
 }

@@ -100,7 +100,7 @@ public class MessageBroker implements Runnable {
     public void saveQueueToFile() {
         SaveFile task = new SaveFile(queue);
         Timer timer = new Timer();
-        timer.schedule(task, 0, 6000);
+        timer.schedule(task, 0, 10000);
 
     }
 }

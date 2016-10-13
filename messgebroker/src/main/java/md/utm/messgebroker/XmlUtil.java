@@ -7,8 +7,9 @@ import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.UUID;
 
 @SuppressWarnings("restriction")
 public class XmlUtil {
@@ -66,7 +67,7 @@ public class XmlUtil {
 
 
     public static void exportToXmlFile(Queue objects) {
-        File  msgs = new File("messages.xml");
+        File msgs = new File("messages.xml");
         XmlMessages messages = new XmlMessages();
         messages.setXmlMessages(objects);
         try {
@@ -89,8 +90,8 @@ public class XmlUtil {
             messages = (XmlMessages) jaxbUnmarshaller.unmarshal(f);
             msgs = new LinkedList<>();
 
-            if(messages.getXmlMessages()!=null)
-            msgs.addAll(messages.getXmlMessages());
+            if (messages.getXmlMessages() != null)
+                msgs.addAll(messages.getXmlMessages());
         } catch (JAXBException e) {
             e.printStackTrace();
         }
@@ -123,7 +124,7 @@ public class XmlUtil {
         //System.out.println(getListOfXmlObjects(listMessages()));
         // System.out.println(objectToXml("read"));
         //System.out.println(objectToXml("forServer"));
-       // getMesagesFromFile(getListOfXmlObjects(listMessages()));
+        // getMesagesFromFile(getListOfXmlObjects(listMessages()));
 
     }
 
